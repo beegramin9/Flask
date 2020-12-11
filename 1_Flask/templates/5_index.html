@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask Web</title>
+    <script src="{{url_for('static',filename='js/hello.js')}}"></script>
+</head>
+
+<body>
+    <input type="text" onclick="sayHello()" , value="Say Hello">
+    <img src="{{url_for('static',filename='img/tickets.jpg', q = mtime)}}" alt="">
+
+    <!-- Jinja Template Engine-->
+    {% if name %}
+    <!-- | 뒤에 파이썬 str 메소드 사용 가능(필터라고 말함) -->
+    Hello {{ name | upper() }}
+    {% else %}
+    Hello World.
+    <!-- 열때 if로 열었으면 endif, for로 열었으면 endfor -->
+    {% endif %}
+    <!-- item이란 변수가 없을 때는 default값으로 -->
+    {{ item | default('item is not defined')}}
+
+    <br>
+
+    <ul>
+        {% for key, value in dt.items() %}
+        <li>
+            {{ key }} : {{ value }}
+        </li>
+        {% endfor %}
+    </ul>
+    <ul>
+        {% for i in range(5) %}
+        <li> {{i}} </li>
+        {% endfor %}
+    </ul>
+
+
+
+
+</body>
+
+
+</html>
