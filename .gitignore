@@ -12,6 +12,7 @@ settings.json
 samples
 .ipynb_checkpoints
 */.ipynb_checkpoints/*
+fontawesome-free-5.15.1-web
 
 # IPython
 profile_default/
