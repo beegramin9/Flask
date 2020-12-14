@@ -5,7 +5,6 @@ def get_weather(lat=37.550966, lng=126.849532):
     # 모듈을 불러오는 app.py 기준으로 상대경로를 지정해야 함
     key_fd = open('./keys/openweatherkey.txt', mode='r')
     weather_key = key_fd.read(100)
-    print(weather_key)
     key_fd.close()
 
     url = f'http://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lng}&appid={weather_key}&units=metric&'
