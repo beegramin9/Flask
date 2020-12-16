@@ -53,10 +53,10 @@
                         <a class="nav-link dropdown-toggle {% if menu.se %}active{% endif %}" 
                            data-toggle="dropdown" href="#">서울특별시</a>
                         <div class="dropdown-menu">
-                            <a class="dropdown-item" href="/park">공원 현황</a>
-                            <a class="dropdown-item" href="/park_gu/area">공원 비교</a>
-                            <a class="dropdown-item" href="#">범죄</a>
-                            <a class="dropdown-item" href="#">CCTV</a>
+                            <a class="dropdown-item" href="/seoul/park">공원 현황</a>
+                            <a class="dropdown-item" href="/seoul/park_gu/area">공원 비교</a>
+                            <a class="dropdown-item" href="/seoul/crime/total">범죄</a>
+                            <a class="dropdown-item" href="/seoul/cctv">CCTV</a>
                         </div>
                     </li>
                     <div class="dropdown-divider"></div>
@@ -105,12 +105,15 @@
                     <div class="dropdown-divider"></div>
                 </ul>
             </div>
-            <div class="col-10">
+            <div class="col-8">
                 <h3>{% block subtitle %}{% endblock %}</h3>
                 <hr>
                 {% block content %}
                 {% endblock %}
             </div>
+            <div class="col-2">
+            </div>
+
         </div>
     </div>  
 

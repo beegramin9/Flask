@@ -2,20 +2,24 @@ from flask import *
 from fbprophet import Prophet
 from datetime import *
 import pandas as pd
-import pandas as pd
 import pandas_datareader as pdr
 from my_util.weather import get_weather
 import os
 
 stock_bp = Blueprint('stock_bp', __name__)
 
+
 kospi_dict, kosdaq_dict = {}, {}
-kospi = pd.read_csv('./static/data/KOSPI.csv', dtype={'종목코드': str})
-for i in kospi.index:
-    kospi_dict[kospi['종목코드'][i]] = kospi['종목명'][i]
-kosdaq = pd.read_csv('./static/data/KOSDAQ.csv', dtype={'종목코드': str})
-for i in kosdaq.index:
-    kosdaq_dict[kosdaq['종목코드'][i]] = kosdaq['종목명'][i]
+
+
+@stock_bp.before_app_first_request
+def before_app_first_request():
+    kospi = pd.read_csv('./static/data/stock/KOSPI.csv', dtype={'종목코드': str})
+    for i in kospi.index:
+        kospi_dict[kospi['종목코드'][i]] = kospi['종목명'][i]
+    kosdaq = pd.read_csv('./static/data/stock/KOSDAQ.csv', dtype={'종목코드': str})
+    for i in kosdaq.index:
+        kosdaq_dict[kosdaq['종목코드'][i]] = kosdaq['종목명'][i]
 
 # stock은 루트를 /로 써주면 get은 되는데 post가 제대로 안 되서
 # 기본 루트를 /stock으로 써줬음
