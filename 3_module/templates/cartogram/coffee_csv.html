@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block weather %} {{ weather|safe() }} {% endblock %}
+{% block subtitle %}
+    <strong>서울 자치구별 공원비교</strong>
+{% endblock %}
+{% block content %}
+    <div class="row">
+        <div class="w-90 ml-5">
+            <img src="{{url_for('static', filename='img/coffee.png', q=mtime)}}"
+            width="600" alt="커피 지수">
+        </div>
+    </div>
+{% endblock %}

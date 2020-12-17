@@ -2,6 +2,7 @@ from my_util.weather import get_weather
 from flask import Flask, render_template, session, request
 
 from bp1_seoul.seoul import seoul_bp
+from bp3_cartogram.carto import carto_bp
 from bp5_stock.stock import stock_bp
 
 
@@ -23,14 +24,18 @@ mpl.rc('axes', unicode_minus=False)
 
 app = Flask(__name__)
 app.secret_key = 'qwert12345'
+# 블루프린트에서 같은 세션을 공유할 수 있도록 하는 코드
+app.config['SESSION_COOKIE_PATH'] = '/'
 
 app.register_blueprint(stock_bp, url_prefix='/stock')
 app.register_blueprint(seoul_bp, url_prefix='/seoul')
+app.register_blueprint(carto_bp, url_prefix='/cartogram')
 
 with open('./logging.json', 'r') as file:
     config = json.load(file)
 dictConfig(config)
 app.logger
+# 로그 파일의 이름을 어떻게 저장할 수 있을까?
 
 
 def get_weather_main():
