@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block addtional_head%}
+    <style>
+        td img {
+            width: 50%;
+        }
+    </style>
+{% endblock %}
+{% block weather %} {{ weather|safe() }} {% endblock %}
+{% block subtitle %}
+    <strong>전국 인구통계</strong> <small>- {{item}}</small>
+{% endblock %}
+{% block content %}
+    <div class="row">
+        <div class="col-1"></div>
+        <div class="col-8">
+            <table class="table table-borderless">
+                <tr>
+                    <td style="text-align:center">
+                        <img src="{{url_for('static', filename='img/coffee.png', q=mtime)}}"
+                        width="500" alt="커피 지수">
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="col-3">
+            <table class="table table-striped">
+                    <thead class="thead-dark ">
+                        <tr>
+                            {% if item == '여성비' %}
+                            <th colspan="2" style="text-align: center; white-space:nowrap">TOP 10 ({{item[:-1]}}: 인구수 총합 )</th>
+                            {% elif item == '2030여성비' %}
+                            <th colspan="2" style="text-align: center; white-space:nowrap">TOP 10 ({{item[:-1]}}: 2030 총합 )</th>
+                            {% else %}
+                            <th colspan="2" style="text-align: center;">TOP 10</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                {% for i in top10.index %}
+                    <tr>
+                        <td>{{top10.ID[i]}}</td>
+                        {% if item == '인구수계' %}
+                        <td>{{top10[item][i] | int()}}명</td>
+                        {% elif item == '소멸위기지역' %}
+                        <td>{{ i+1 | int()}}위</td>
+                        {% else %}
+                        <!-- 여성: 인구수계 구하는 식 -->
+                        <!-- 1: 100 / (여성비+50) -->
+                        <!-- 자바스크립트로 html에서 사칙연산하는 것만 알아내면 됨 -->
+                        <td> 1: 100 / ({{top10[item][i]}}+50)</td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+                    <tr>
+                        <td colspan="2" style="text-align: center;">
+                            <button class="btn btn-primary" onclick="location.href='/cartogram/population'">재실행</button>
+                        </td>
+                    </tr>
+            </table>
+        </div>
+    </div>
+
+{% endblock %}

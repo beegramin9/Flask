@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block weather %} {{ weather|safe() }} {% endblock %}
+{% block subtitle %}
+    <strong>인구소멸 위기 지역</strong>
+{% endblock %}
+ <!-- <small>- {{option_dict[option]}}</small> -->
+{% block content %}
+    <div class="row">
+        <div class="col-2"></div>
+        <div class="col-8">
+            <form action="/cartogram/population" method='post' enctype="multipart/form-data">
+                <table class="table table-borderless">
+                    <tr>
+                        <td><label for="item">항목</label></td>
+                        <td><select class="custom-select" name="item" id="item">
+                            {% for item in options %}
+                            <option value="{{item}}">{{item}}</option>
+                            {% endfor %}
+                        </select></td>
+                    </tr>
+                    <tr>
+                        <td>CSV 파일</td>
+                        <td>
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input" id="csv" name="csv">
+                                <label class="custom-file-label" for="csv">업로드할 파일 선택</label>
+                            </div>
+                        </td>
+                    <tr>
+                        <td colspan="2" style="text-align: center;">
+                            <button type="submit" class="btn btn-primary">실행</button>&nbsp;&nbsp;&nbsp;
+                            <button type="reset" class="btn btn-secondary">취소</button>
+                        </td>
+                    </tr>        
+                </table>
+            </form>
+        </div>
+        <div class="col-2"></div>
+    </div>
+{% endblock %}q
+{% block additional_body %}
+    <script>
+    // Add the following code if you want the name of the file appear on select
+    $(".custom-file-input").on("change", function() {
+      var fileName = $(this).val().split("\\").pop();
+      $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+    });
+    </script>
+{% endblock %}
+
+
+
+<span> 1 / 4 + 5  </span>

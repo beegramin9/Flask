@@ -4,6 +4,10 @@ Ch5_커피지수/source/소상공인시장진흥공단*
 Ch5_커피지수/source/소상공인시장진흥공단_상가(상권)정보_서울_202009.csv
 Ch5_커피지수/result/
 
+log/
+upload/
+
+
 gov_data_api_key.txt
 
 kakaomapkey.txt

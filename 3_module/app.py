@@ -31,10 +31,10 @@ app.register_blueprint(stock_bp, url_prefix='/stock')
 app.register_blueprint(seoul_bp, url_prefix='/seoul')
 app.register_blueprint(carto_bp, url_prefix='/cartogram')
 
-with open('./logging.json', 'r') as file:
+""" with open('./logging.json', 'r') as file:
     config = json.load(file)
 dictConfig(config)
-app.logger
+app.logger """
 # 로그 파일의 이름을 어떻게 저장할 수 있을까?
 
 

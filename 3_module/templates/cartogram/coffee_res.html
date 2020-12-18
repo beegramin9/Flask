@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block addtional_head%}
+    <style>
+        td img {
+            width: 50%;
+        }
+    </style>
+{% endblock %}
+{% block weather %} {{ weather|safe() }} {% endblock %}
+{% block subtitle %}
+    <strong>커피지수</strong> <small>- {{item}}</small>
+{% endblock %}
+{% block content %}
+    <div class="row">
+        <div class="col-1"></div>
+        <div class="col-8">
+            <table class="table table-borderless">
+                <tr>
+                    <td style="text-align:center">
+                        <img src="{{url_for('static', filename='img/coffee.png', q=mtime)}}"
+                        width="500" alt="커피 지수">
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="col-3">
+            <table class="table table-striped">
+                    <thead class="thead-dark ">
+                        <tr>
+                            <th colspan="2" style="text-align: center;">TOP 10</th>
+                        </tr>
+                    </thead>
+                {% for i in top10.index %}
+                    <tr>
+                        <td>{{top10.ID[i]}}</td>
+                        {% if item == '커피지수' %}
+                        <td>{{top10[item][i]}}</td>
+                        {% else %}
+                        <td>{{top10[item][i] | int()}}명</td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+                    <tr>
+                        <td colspan="2" style="text-align: center;">
+                            <button class="btn btn-primary" onclick="location.href='/cartogram/coffee'">재실행</button>
+                        </td>
+                    </tr>
+            </table>
+        </div>
+    </div>
+
+{% endblock %}
