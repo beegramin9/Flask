@@ -82,8 +82,53 @@ def coffee():
         return render_template('cartogram/coffee_res.html', menu=menu, weather=get_weather_main(), mtime=mtime,
                                item=item, top10=top10)
 
+# Flask Optional Parameter
 
-@carto_bp.route('/population', methods=['get', 'post'])
+
+@carto_bp.route('/burger/<option>', defaults={'population': None})
+@carto_bp.route('/burger/<option>/<population>', methods=['get', 'post'])
+def burger(option, population):
+    menu = {'ho': 0, 'da': 1, 'ml': 0, 'se': 0,
+            'co': 0, 'cg': 1, 'cr': 0, 'st': 0, 'wc': 0}
+    burger_index = pd.read_csv('./static/data/cartogram/전국 버거 지수(인구포함).csv')
+
+    option_dict = {'king': ['버거킹', 'YlGn'],
+                   'mac': ['맥도날드', 'Reds'],
+                   'lotte': ['롯데리아', 'Oranges'],
+                   'KFC': ['KFC', 'PuRd'],
+                   'touch': ['맘스터치', 'BuGn'],
+                   'index': ['버거지수', 'Blues'],
+                   'total_rate': '검거율 총합',
+                   'murder_rate': '살인 검거율',
+                   'robbery_rate': '강도 검거율',
+                   'rape_rate': '강간 검거율',
+                   'larceny_rate': '절도 검거율',
+                   'assault_rate': '폭력 검거율'
+                   }
+
+    item = option_dict[option][0]
+    color = option_dict[option][1]
+
+    if population:
+        burger_index[f'1만명 당 {item} 점포 수'] = round(burger_index[item] /
+                                                   burger_index['인구수계'] * 10000, 2)
+        item = f'1만명 당 {item} 점포 수'
+
+    img_file = os.path.join(current_app.root_path, 'static/img/burger.png')
+    drawKorea(item, burger_index,
+              color, img_file)
+    mtime = int(os.stat(img_file).st_mtime)
+
+    # top10
+    top10 = burger_index[['ID', item]].sort_values(
+        by=item, ascending=False).head(10)
+    top10[item] = top10.apply(lambda r: round(r[item], 2), axis=1)
+
+    return render_template('cartogram/burger.html', menu=menu, weather=get_weather_main(), mtime=mtime,
+                           item=item, top10=top10)
+
+
+@ carto_bp.route('/population', methods=['get', 'post'])
 def population():
     menu = {'ho': 0, 'da': 1, 'ml': 0, 'se': 0,
             'co': 0, 'cg': 1, 'cr': 0, 'st': 0, 'wc': 0}
