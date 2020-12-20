@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block weather %} {{ weather|safe() }} {% endblock %}
+{% block subtitle %}
+    <small>워드클라우드 - </small><strong>{{options[option]}}</strong>
+{% endblock %}
+{% block content %}
+    <div class="row">
+        <div class="col-2"></div>
+        <div class="col-8">
+            <form action="/wordcloud/{{option}}" method="post" enctype="multipart/form-data">
+                <table class="table table-borderless">
+                    <tr style="text-align: center;">
+                        <td>
+                            <label class="form-check-label">
+                                <input type="radio" class="form-check-input" id="lang" name="lang" value="kr" checked>한글
+                            </label>
+                        </td>
+                        <td>
+                            <label class="form-check-label">
+                                <input type="radio" class="form-check-input" id="lang" name="lang" value="en">영어
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>텍스트 파일</td>
+                        <td>
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input" id="text" name="text">
+                                <label class="custom-file-label" for="text">업로드할 텍스트 파일 선택</label>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>마스크 파일</td>
+                        <td>
+                            <div class="custom-file mb-3">
+                                <input type="file" class="custom-file-input" id="mask" name="mask">
+                                <label class="custom-file-label" for="mask">업로드할 이미지 파일 선택</label>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Stopwords</td>
+                        <td>
+                            <textarea name="stop_words" id="stop_words" cols="50" rows="5"></textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" style="text-align: center;">
+                            <button type="submit" class="btn btn-primary">실행</button>&nbsp;&nbsp;&nbsp;
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+{% block additional_body %}
+    <script>
+        $('#kr').on('input', function() {
+            $('#kr')[0].checked = true
+        });
+        $('#en').on('input', function() {
+            $('#en')[0].checked = true
+        });
+        /* document.getElementById('#kospi').addEventListener('input', function() {
+            document.getElementById('#market1').checked = true
+            document.getElementById('#market2').checked = false
+        }, false);
+        document.getElementById('#kosdaq').addEventListener('input', function() {
+            document.getElementById('#market1').checked = false
+            document.getElementById('#market2').checked = true
+        }, false); */
+        // Add the following code if you want the name of the file appear on select
+        $(".custom-file-input").on("change", function() {
+          var fileName = $(this).val().split("\\").pop();
+          $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+        });
+    </script>
+{% endblock %}
