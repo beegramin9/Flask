@@ -2,6 +2,7 @@ from my_util.weather import get_weather
 from flask import Flask, render_template, session, request
 
 from bp1_seoul.seoul import seoul_bp
+from bp2_covid.covid import covid_bp
 from bp3_cartogram.carto import carto_bp
 from bp5_stock.stock import stock_bp
 from bp6_wordcloud.wordcloud import word_bp
@@ -28,9 +29,10 @@ app.secret_key = 'qwert12345'
 # 블루프린트에서 같은 세션을 공유할 수 있도록 하는 코드
 app.config['SESSION_COOKIE_PATH'] = '/'
 
-app.register_blueprint(stock_bp, url_prefix='/stock')
 app.register_blueprint(seoul_bp, url_prefix='/seoul')
+app.register_blueprint(covid_bp, url_prefix='/covid')
 app.register_blueprint(carto_bp, url_prefix='/cartogram')
+app.register_blueprint(stock_bp, url_prefix='/stock')
 app.register_blueprint(word_bp, url_prefix='/wordcloud')
 
 """ with open('./logging.json', 'r') as file:
@@ -57,7 +59,7 @@ def get_weather_main():
 def index():
     menu = {'ho': 1, 'da': 0, 'ml': 0, 'se': 0,
             'co': 0, 'cg': 0, 'cr': 0, 'st': 0, 'wc': 0}
-    return render_template('index.html', menu=menu, weather=get_weather_main())
+    return render_template('main.html', menu=menu, weather=get_weather_main())
 
 
 if __name__ == '__main__':
