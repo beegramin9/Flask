@@ -3,7 +3,7 @@ from datetime import *
 
 from werkzeug.utils import secure_filename
 
-from my_util.Cartogram import *
+from db.db_module import *
 import os
 
 import pandas as pd
@@ -36,8 +36,13 @@ def get_weather_main():
     return weather
 
 
-@covid_bp.route('/korea', methods=['get', 'post'])
-def korea():
+@covid_bp.route('/daily', methods=['get', 'post'])
+def daily():
     menu = {'ho': 0, 'da': 1, 'ml': 0, 'se': 0,
             'co': 1, 'cg': 0, 'cr': 0, 'st': 0, 'wc': 0}
-    return render_template('covid/covid.html', menu=menu, weather=get_weather_main())
+    date = request.args.get('date', datetime.now().strftime('%Y-%m-%d'))
+    print('오늘날짜', datetime.now().strftime('%Y-%m-%d'))
+    rows = get_regional_data(date)
+    # print('블루프린트rows', rows)
+    return render_template('covid/daily.html', menu=menu, weather=get_weather_main(),
+                           date=date, rows=rows)
