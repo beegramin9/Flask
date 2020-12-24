@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 {% block additional_head %}
     <style>
+        th {
+            text-align: center;
+        }
         td {
             text-align: center;
         }
@@ -36,7 +39,7 @@
                 <td>{{row[6]}}</td>
                 <td>{{row[7]}}</td>
                 <td>{{row[8]}}</td>
-                <td>{{row[9]}}</td>
+                <td>{{ "%.2f"|format(row[9]) }}</td>                
             </tr>
             {% endfor %}
         </table>

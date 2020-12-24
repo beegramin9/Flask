@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block additional_head %}
+    <style>
+        th {
+            text-align: center;
+        }
+        td {
+            text-align: center;
+        }
+    </style>
+{% endblock %}
+{% block weather %} {{ weather|safe() }} {% endblock %}
+{% block subtitle %}
+    <strong>코로나 일별 시도 확진자</strong> <small>- {{date}}</small>
+{% endblock %}
+{% block content %}
+    <div class="row">
+        <div class="col-3"></div>
+        <div class="col-6"></div>
+        <table class="table table-borderless">
+            <tr>
+                <th></th>
+                <th style="text-align:center">확진자</th>
+            </tr>
+            {% for i in range(rows[0] | length) %}
+            {% if loop.index > 1 %}
+            <tr>
+                <td>도시명</td>
+                <td>{{rows[0][i]}}</td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+        </table>
+        <div class="col-3"></div>
+    </div>
+{% endblock %}
