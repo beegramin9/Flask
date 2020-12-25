@@ -35,12 +35,6 @@ def get_weather_main():
         current_app.permanent_session_lifetime = timedelta(minutes=60)
     return weather
 
-# 질문
-# request.args.get을 사용하려면 method를 정하지 않는다.
-
-# 이게 아니라 오늘 날짜가 없어서 그런거 아냐?
-# 오늘 날짜가 없음. 매일마다 들어갈 수 있게 해줘야 함
-
 
 @covid_bp.route('/all_info',  methods=['get', 'post'])
 def daily():
@@ -61,8 +55,6 @@ def district():
     renewal_daily_sido()
     date = request.args.get('date', datetime.now().strftime('%Y-%m-%d'))
     rows = get_daily_sido_data(date)
-    # 한 줄 밖에 없음
-    print(rows)
     return render_template('covid/daily_sido.html', menu=menu, weather=get_weather_main(),
                            date=date, rows=rows)
 
@@ -73,6 +65,7 @@ def demograhpic():
             'co': 1, 'cg': 0, 'cr': 0, 'st': 0, 'wc': 0}
     date = request.args.get(
         'date', default=datetime.now().strftime('%Y-%m-%d'))
+    renewal_demographic(date)
     rows = get_demographic_data(date)
     return render_template('covid/demograhpic.html', menu=menu, weather=get_weather_main(),
                            date=date, rows=rows)
@@ -84,6 +77,7 @@ def world():
             'co': 1, 'cg': 0, 'cr': 0, 'st': 0, 'wc': 0}
     date = request.args.get(
         'date', default=datetime.now().strftime('%Y-%m-%d'))
+    renewal_world(date)
     rows = get_world_data(date)
     return render_template('covid/world.html', menu=menu, weather=get_weather_main(),
                            date=date, rows=rows)

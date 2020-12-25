@@ -16,6 +16,9 @@ key_fd = open('./keys/gov_data_api_key.txt', mode='r')
 govapi_key = key_fd.read(100)
 key_fd.close()
 
+# db 마지막 날짜와 오늘 날짜를 비교해서 그 사이 데이터를 모두 받아오도록
+# 모든 빈 날짜들을 다 받아올 수 있지만 코드가 매우 길어진다.
+
 
 def renewal_all_info():
     # 오늘 날짜
@@ -204,6 +207,130 @@ def renewal_daily_sido():
                 params.append(int(korea.iloc[i, k]))
             cur.execute(sql_insert, params)
             conn.commit()
+
+
+# 해당 날짜만 받아올 수 있도록
+# 그러려면 args로 들어오는 date를 받아야 함
+# 또 맨 마지막 날짜랑 비교하는게 아닌 현재 데이트가 있는지를 봐야 함
+# 애는 갱신되는 시간이 늦음
+def renewal_demographic(date):
+    sql = """ select * from demographic where date = ? """
+    cur.execute(sql, (date,))
+    row = cur.fetchone()
+    # 요거 받아올때 날짜 형식은 20201220 이어야 함
+    date = date.replace('-', '')
+    conn.commit()
+
+    # 현재 페이지의 날짜
+    if row is None:
+        corona_url = "http://openapi.data.go.kr/openapi/service/rest/Covid19/getCovid19GenAgeCaseInfJson"
+        url = f"{corona_url}?serviceKey={govapi_key}&pageNo=1&numOfRows=1&startCreateDt={date}&endCreateDt={date}"
+        result = requests.get(url)
+        soup = BeautifulSoup(result.text, 'xml')
+        date_list, gubun_list, death_list, death_rate_list, case_list, case_rate_list = [
+        ], [], [], [], [], []
+        # 일자
+        date = soup.select('createDt')
+        # 구분(성별, 연령별)
+        gubun = soup.select('gubun')
+        # 확진자 수
+        case = soup.select('confCase')
+        # 확진률
+        case_rate = soup.select('confCaseRate')
+        # 사망자 수
+        death = soup.select('death')
+        # 사망률
+        death_rate = soup.select('deathRate')
+
+        for i in date:
+            date_list.append(parse(i.text).date())
+        for i in gubun:
+            gubun_list.append(i.text)
+        for i in case:
+            case_list.append(int(i.text))
+        for i in case_rate:
+            case_rate_list.append(float(i.text))
+        for i in death:
+            death_list.append(int(i.text))
+        for i in death_rate:
+            death_rate_list.append(float(i.text))
+
+        df = pd.DataFrame({
+            '일자': date_list,
+            '구분': gubun_list, '확진자': case_list,
+            '확진률': case_rate_list, '사망자': death_list, '사망률': death_rate_list
+        })
+        sql = 'insert into demographic values(?,?,?,?,?,?);'
+        for i in range(len(df)):
+            text_col = list(df.iloc[i, 0:2])
+            for k in range(2, 4):
+                text_col.append(int(df.iloc[i, k]))
+            for h in range(4, 6):
+                text_col.append(float(df.iloc[i, h]))
+            params = text_col
+            cur.execute(sql, params)
+            conn.commit()
+    else:
+        print('이미 최신정보로 업데이트되었습니다.')
+
+
+def renewal_world(date):
+    sql = """ select * from world where date = ? """
+    cur.execute(sql, (date,))
+    row = cur.fetchone()
+    # 요거 받아올때 날짜 형식은 20201220 이어야 함
+    date = date.replace('-', '')
+    conn.commit()
+    # 현재 페이지의 날짜
+    if row is None:
+        corona_url = "http://openapi.data.go.kr/openapi/service/rest/Covid19/getCovid19NatInfStateJson"
+        url = f"{corona_url}?serviceKey={govapi_key}&pageNo=1&numOfRows=1&startCreateDt={date}&endCreateDt={date}"
+        result = requests.get(url)
+        soup = BeautifulSoup(result.text, 'xml')
+        date_list, continent_list, country_list, case_list, death_list, death_rate_list = [
+        ], [], [], [], [], []
+
+        # 일자
+        date = soup.select('createDt')
+        # 지역명
+        continent = soup.select('areaNm')
+        # 국가명
+        country = soup.select('nationNm')
+        # 확진자 수
+        case = soup.select('natDefCnt')
+        # 사망자 수
+        death = soup.select('natDeathCnt')
+        # 치사률(확진자 대비 사망률)
+        death_rate = soup.select('natDeathRate')
+
+        for i in date:
+            date_list.append(parse(i.text).date())
+        for i in continent:
+            continent_list.append(i.text)
+        for i in country:
+            country_list.append(i.text)
+        for i in case:
+            case_list.append(int(i.text))
+        for i in death:
+            death_list.append(int(i.text))
+        for i in death_rate:
+            death_rate_list.append(float(i.text))
+        df = pd.DataFrame({
+            '일자': date_list,
+            '대륙': continent_list, '국가': country_list,
+            '확진자': case_list, '사망자': death_list, '사망률': death_rate_list
+        })
+        sql = 'insert into world values(?,?,?,?,?,?);'
+        for i in range(len(df)):
+            text_col = list(df.iloc[i, 0:3])
+            for k in range(3, 5):
+                text_col.append(int(df.iloc[i, k]))
+            text_col.append(float(df.iloc[i, -1]))
+            params = text_col
+            cur.execute(sql, params)
+            conn.commit()
+    else:
+        print('이미 최신정보로 업데이트되었습니다.')
 
 
 def get_all_info_data(date):
