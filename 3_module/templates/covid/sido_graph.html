@@ -40,9 +40,25 @@
             </tr>
             <tr>
                 <td colspan="2" style="text-align: center;">
-                    <button type="submit" class="btn btn-dark mb-2">재실행</button>
+                    <button type="submit" id="submit" class="btn btn-dark mb-2">그리기</button>
                 </td>
             </tr>
         </table>
     </form>
+{% endblock %}
+{% block additional_body %}
+<script>
+    /* date만 가져오면 돼 */
+    /* 왠지 분명히 React로 할 수 있을것만 같은 느낌임... */
+    $('#submit').on('click', function(e) {
+        e.preventDefault();
+
+        city = $('#datepicker1').val(); 
+        endpoint = '/covid/sido_graph?city=' + city;
+
+        window.location.href = endpoint
+
+        return false;
+    });
+</script>
 {% endblock %}
