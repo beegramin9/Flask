@@ -9,7 +9,7 @@
 {% endblock %}
 {% block weather %} {{ weather|safe() }} {% endblock %}
 {% block subtitle %}
-    <strong>코로나 전세계 현황</strong> <small>- {{date}}</small>
+    <strong>코로나 성별·연령별 현황</strong> <small>- {{date}}</small>
 {% endblock %}
 {% block content %}
     <!-- DatePicker -->
@@ -28,20 +28,32 @@
         <div class="col-6"></div>
         <table class="table table-borderless">
             <tr>
-                <th>대륙</th>
-                <th>국가</th>
+                <th>구분</th>
                 <th>확진자</th>
+                <th>확진율</th>
                 <th>사망자</th>
-                <th>사망률</th>
+                <th>확진율</th>
             </tr>
             {% for row in rows %}
+            {% if loop.index < 9 %}
+            <tr>
+                <td>{{row[1]}}세</td>
+                <td>{{row[2]}}명</td>
+                <td>{{ "%2.2f"|format(row[4])}}%</td>
+                <td>{{row[3]}}명</td>
+                <td>{{ "%2.2f"|format(row[5])}}%</td>
+                <!-- <td>{{row[5] | round(2)}}</td> -->
+            </tr>
+            {% else %}
             <tr>
                 <td>{{row[1]}}</td>
-                <td>{{row[2]}}</td>
+                <td>{{row[2]}}명</td>
+                <td>{{ "%2.2f"|format(row[4])}}%</td>
                 <td>{{row[3]}}명</td>
-                <td>{{row[4]}}명</td>
-                <td>{{row[5] | round(2)}}%</td>
+                <td>{{ "%2.2f"|format(row[5])}}%</td>
+                <!-- <td>{{row[5] | round(2)}}</td> -->
             </tr>
+            {% endif %}
             {% endfor %}
         </table>
         <div class="col-3"></div>
@@ -70,7 +82,7 @@
         e.preventDefault();
 
         date = $('#datepicker1').val(); 
-        endpoint = '/covid/world?date=' + date;
+        endpoint = '/covid/demographic?date=' + date;
 
         window.location.href = endpoint
 
