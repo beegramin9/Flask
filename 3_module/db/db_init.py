@@ -5,41 +5,9 @@ from tqdm import tqdm
 conn = sqlite3.connect('./db/covid.db', check_same_thread=False)
 cur = conn.cursor()
 
-# 매일마다 파일을 더하게 할 수는 없을까...?
 
-
-def renewal_daily_sido():
-    pass
-
-
-def make_daily_sido():
-    sql = '''create table daily_sido (
-        date text not null primary key,
-        seoul int default 0, busan int default 0, daegu int default 0,
-        incheon int default 0, daejeon int default 0, gwangju int default 0,
-        ulsan int default 0, sejong int default 0, gyeonggi int default 0,
-        gangwon int default 0, chungbuk int default 0, chungnam int default 0,
-        gyeongbuk int default 0, gyeongnam int default 0, jeonbuk int default 0,
-        jeonnam int default 0, jeju int default 0, 
-        gye int default 0);'''
-    cur.execute(sql)
-    conn.commit()
-
-
-def insert_daily_sido():
-    sql = 'insert into daily_sido values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);'
-    daily = pd.read_csv('../static/data/covid/전국코로나일별.csv',
-                        sep=',', encoding='utf8')
-    for i in tqdm(range(len(daily))):
-        params = [daily.iloc[i, 0]]
-        for k in range(1, 19):
-            params.append(int(daily.iloc[i, k]))
-        cur.execute(sql, params)
-        conn.commit()
-
-
-def make_daily_sido():
-    sql = '''create table daily_sido (
+def make_all_info():
+    sql = '''create table all_info (
         date text not null,
         city text not null,
         death int default 0,
@@ -55,8 +23,8 @@ def make_daily_sido():
     conn.commit()
 
 
-def insert_daily_sido():
-    sql = """ insert into daily_sido values(?,?,?,?,?,?,?,?,?,?)"""
+def insert_all_info():
+    sql = """ insert into all_info values(?,?,?,?,?,?,?,?,?,?)"""
     all = pd.read_csv('../static/data/covid/전국 모든정보.csv',
                       sep=',', encoding='utf8')
     del all['Unnamed: 0']

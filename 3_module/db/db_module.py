@@ -145,70 +145,6 @@ def renewal_all_info():
             conn.commit()
 
 
-def renewal_daily_sido():
-    today = datetime.today().date()
-
-    sql = """ select * from daily_sido ORDER BY ROWID DESC LIMIT 1 """
-    cur.execute(sql)
-    row = cur.fetchone()
-    # DB 맨 마지막 행 말짜
-    db_last_day = row[0]
-    print(db_last_day)
-    conn.commit()
-
-    # DB 마지막 날짜 datetime형식으로
-    last_day = parse(db_last_day).date()
-
-    if today == last_day:
-        print('이미 최신정보로 업데이트되었습니다.')
-    else:
-        elapsed_count = (today - last_day).days
-
-        elapsed_series = pd.date_range(
-            last_day + timedelta(1), periods=elapsed_count)
-
-        corona_url = "http://openapi.data.go.kr/openapi/service/rest/Covid19/getCovid19SidoInfStateJson"
-        total_date_list, total_city_list, total_posi_list = [], [], []
-        for date in elapsed_series:
-            date = date.strftime('%Y%m%d')
-
-            url = f"{corona_url}?serviceKey={govapi_key}&pageNo=1&numOfRows=1&startCreateDt={date}&endCreateDt={date}"
-
-            result = requests.get(url)
-            soup = BeautifulSoup(result.text, 'xml')
-            date_list_tmp = soup.select('createDt')
-            for date in date_list_tmp:
-                total_date_list.append(parse(date.text).date())
-
-            # 도시 리스트
-            city_list_tmp = soup.select('gubun')
-            for city in city_list_tmp:
-                total_city_list.append(city.text)
-            # 일일 확진자 발생 수
-            posi_list_tmp = soup.select('incDec')
-            for posi in posi_list_tmp:
-                total_posi_list.append(int(posi.text))
-
-        korea = pd.DataFrame({
-            '일자': total_date_list,
-            '지역': total_city_list,
-            '확진자': total_posi_list
-        })
-        korea = pd.pivot_table(data=korea,
-                               index='일자',
-                               columns='지역',
-                               values='확진자',
-                               fill_value=0)
-        korea.reset_index(inplace=True)
-        sql_insert = 'insert into daily_sido values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);'
-        for i in range(len(korea)):
-            params = [korea.iloc[i, 0]]
-            for k in range(1, 19):
-                params.append(int(korea.iloc[i, k]))
-            cur.execute(sql_insert, params)
-            conn.commit()
-
-
 # 해당 날짜만 받아올 수 있도록
 # 그러려면 args로 들어오는 date를 받아야 함
 # 또 맨 마지막 날짜랑 비교하는게 아닌 현재 데이트가 있는지를 봐야 함
@@ -229,18 +165,20 @@ def renewal_demographic(date):
         soup = BeautifulSoup(result.text, 'xml')
         date_list, gubun_list, death_list, death_rate_list, case_list, case_rate_list = [
         ], [], [], [], [], []
+        # '남성' 카테고리만 빼고 같은 게 두 번씩 들어옴
+
         # 일자
-        date = soup.select('createDt')
+        date = soup.select('createDt')[:11]
         # 구분(성별, 연령별)
-        gubun = soup.select('gubun')
+        gubun = soup.select('gubun')[:11]
         # 확진자 수
-        case = soup.select('confCase')
+        case = soup.select('confCase')[:11]
         # 확진률
-        case_rate = soup.select('confCaseRate')
+        case_rate = soup.select('confCaseRate')[:11]
         # 사망자 수
-        death = soup.select('death')
+        death = soup.select('death')[:11]
         # 사망률
-        death_rate = soup.select('deathRate')
+        death_rate = soup.select('deathRate')[:11]
 
         for i in date:
             date_list.append(parse(i.text).date())
@@ -343,7 +281,7 @@ def get_all_info_data(date):
 
 
 def get_daily_sido_data(date):
-    sql = """ select * from daily_sido where date = ? """
+    sql = """ select date, city, casenum from all_info where date = ? """
     cur.execute(sql, (date,))
     rows = cur.fetchall()
     # print('db모듈쪽 rows', rows)
@@ -354,7 +292,7 @@ def get_daily_sido_data(date):
 def get_demographic_data(date):
     sql = """ select * from demographic where date = ? """
     cur.execute(sql, (date,))
-    rows = cur.fetchall()
+    rows = cur.fetchall()[:11]
     return rows
     conn.commit()
 
