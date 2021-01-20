@@ -6,7 +6,8 @@ from bp2_covid.covid import covid_bp
 from bp3_cartogram.carto import carto_bp
 from bp4_wordcloud.wordcloud import word_bp
 from bp5_stock.stock import stock_bp
-from bp5_classification.clsf import clsf_bp
+from bp6_classification.clsf import clsf_bp
+from bp9_clustering.clus import clus_bp
 
 
 from datetime import datetime, timedelta
@@ -36,6 +37,7 @@ app.register_blueprint(carto_bp, url_prefix='/cartogram')
 app.register_blueprint(word_bp, url_prefix='/wordcloud')
 app.register_blueprint(stock_bp, url_prefix='/stock')
 app.register_blueprint(clsf_bp, url_prefix='/classification')
+app.register_blueprint(clus_bp, url_prefix='/cluster')
 
 """ with open('./logging.json', 'r') as file:
     config = json.load(file)

@@ -48,6 +48,6 @@ def cancer():
         pred_rf = rfc.predict(test_data)
         result = {'index': index, 'label': label,
                   'pred_lr': pred_lr[0], 'pred_sv': pred_sv[0], 'pred_rf': pred_rf[0]}
-        org = dict(zip(df.columns[:-1], df.iloc[index, :-1]))
+        org = df.iloc[index, :-1].to_dict()
         return render_template('classification/cancer_res.html', menu=menu,
                                res=result, org=org, weather=get_weather())
