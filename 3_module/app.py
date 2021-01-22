@@ -7,6 +7,7 @@ from bp3_cartogram.carto import carto_bp
 from bp4_wordcloud.wordcloud import word_bp
 from bp5_stock.stock import stock_bp
 from bp6_classification.clsf import clsf_bp
+from bp8_regression.rgrs import rgrs_bp
 from bp9_clustering.clus import clus_bp
 
 
@@ -38,6 +39,7 @@ app.register_blueprint(word_bp, url_prefix='/wordcloud')
 app.register_blueprint(stock_bp, url_prefix='/stock')
 app.register_blueprint(clsf_bp, url_prefix='/classification')
 app.register_blueprint(clus_bp, url_prefix='/cluster')
+app.register_blueprint(rgrs_bp, url_prefix='/regression')
 
 """ with open('./logging.json', 'r') as file:
     config = json.load(file)
