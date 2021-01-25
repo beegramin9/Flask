@@ -90,11 +90,12 @@ def pima():
         return render_template('classification/pima.html', menu=menu, weather=get_weather())
     else:
         index = int(request.form['index'])
-        df = pd.read_csv('static/data/pima_test.csv')
+        df_train = pd.read_csv('static/data/classification/pima_train.csv')
+        # 여기 scaler는 이미 fit이 된 상태, transform만 하면 된다.
         scaler = joblib.load('static/model/pima_scaler.pkl')
-        test_data = df.iloc[index, :-1].values.reshape(1, -1)
+        test_data = df_train.iloc[index, :-1].values.reshape(1, -1)
         test_scaled = scaler.transform(test_data)
-        label = df.iloc[index, -1]
+        label = df_train.iloc[index, -1]
         lrc = joblib.load('static/model/pima_lr.pkl')
         svc = joblib.load('static/model/pima_sv.pkl')
         rfc = joblib.load('static/model/pima_rf.pkl')
@@ -103,6 +104,7 @@ def pima():
         pred_rf = rfc.predict(test_scaled)
         result = {'index': index, 'label': label,
                   'pred_lr': pred_lr[0], 'pred_sv': pred_sv[0], 'pred_rf': pred_rf[0]}
-        org = dict(zip(df.columns[:-1], df.iloc[index, :-1]))
+
+        org = df_train.iloc[index, :-1].to_dict()
         return render_template('classification/pima_res.html', menu=menu,
                                res=result, org=org, weather=get_weather())
