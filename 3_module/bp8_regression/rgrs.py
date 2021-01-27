@@ -6,6 +6,7 @@ from sklearn.linear_model import LinearRegression
 import os
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 import pandas_datareader as pdr
 from my_util.weather import get_weather
 
@@ -64,6 +65,93 @@ def iris():
                                index=index, org=org, pred=pred, feature=column_dict[feature_name])
 
 
+@rgrs_bp.route('/diabetes', methods=['GET', 'POST'])
+def diabetes():
+    menu = {'ho': 0, 'da': 0, 'ml': 10,
+            'se': 0, 'co': 0, 'cg': 0, 'cr': 0, 'wc': 0,
+            'cf': 0, 'ac': 0, 're': 1, 'cu': 0}
+    if request.method == 'GET':
+        return render_template('regression/diabetes.html', menu=menu, weather=get_weather())
+    else:
+        index = int(request.form['index'])
+        feature = request.form['feature']
+        df_train = pd.read_csv('static/data/regression/diabetes_train.csv')
+        X_train = df_train[feature].values.reshape(-1, 1)
+        y_train = df_train.target.values
+
+        lr = LinearRegression()
+        lr.fit(X_train, y_train)
+        weight, bias = lr.coef_, lr.intercept_
+
+        df_test = pd.read_csv('static/data/regression/diabetes_test.csv')
+        X_test = df_test[feature][index]
+        y_test = df_test.target[index]
+        pred = X_test * weight[0] + bias
+
+        y_min = np.min(X_train) * weight[0] + bias
+        y_max = np.max(X_train) * weight[0] + bias
+
+        plt.scatter(X_train, y_train, label='train')
+        plt.plot([np.min(X_train), np.max(X_train)], [y_min, y_max], 'r', lw=3)
+        plt.scatter([X_test], [y_test], c='r',
+                    marker='*', s=100, label='real value')
+        plt.grid()
+        plt.legend()
+        plt.title(f'Diabetes target vs. {feature}')
+
+        # 경로 저장
+        img_file = os.path.join(current_app.root_path,
+                                'static/img/diabetes.png')
+        plt.savefig(img_file)
+        mtime = int(os.stat(img_file).st_mtime)
+
+        result_dict = {'index': index,
+                       'feature': feature, 'y': y_test, 'pred': pred}
+        return render_template('regression/diabetes_res.html', res=result_dict, mtime=mtime,
+                               menu=menu, weather=get_weather())
+
+
+@rgrs_bp.route('/boston', methods=['GET', 'POST'])
+def boston():
+    menu = {'ho': 0, 'da': 0, 'ml': 10,
+            'se': 0, 'co': 0, 'cg': 0, 'cr': 0, 'wc': 0,
+            'cf': 0, 'ac': 0, 're': 1, 'cu': 0}
+    if request.method == 'GET':
+        feature_list = ['CRIM', 'ZN', 'INDUS', 'CHAS', 'NOX', 'RM', 'AGE', 'DIS', 'RAD',
+                        'TAX', 'PTRATIO', 'B', 'LSTAT']
+        return render_template('regression/boston.html', feature_list=feature_list,
+                               menu=menu, weather=get_weather())
+    else:
+        index = int(request.form['index'])
+        # Server에서 Client Form에서 list를 받는 방법
+        feature_list = request.form.getlist('feature')
+        df_train = pd.read_csv('static/data/regression/boston_train.csv')
+        # 트레인셋에서 선택한 feature DF와 target Series를 2차원 array로
+        X_train = df_train[feature_list].values
+        y_train = df_train.target.values
+
+        lr = LinearRegression()
+        lr.fit(X_train, y_train)
+        weight, bias = lr.coef_, lr.intercept_
+
+        df_test = pd.read_csv('static/data/regression/boston_test.csv')
+        # df_test[feature_list].values 까지는 DF를 2차원 Array로 바꾼 것
+        # 그 2차원 어레이에서 index 행만 가져오기
+        X_test = df_test[feature_list].values[index, :]
+        y_test = df_test.target[index]
+
+        # 계수값과 절편값을 더해 나온 예측값
+        pred = np.dot(X_test, weight.T) + bias
+        pred = np.round(pred, 2)
+
+        result_dict = {'index': index,
+                       'feature': feature_list, 'y': y_test, 'pred': pred}
+        # 다중회귀에 사용된 테스트셋의 feature와 그 값들
+        org = df_test.iloc[index, :-1].to_dict()
+        return render_template('regression/boston_res.html', res=result_dict, org=org,
+                               menu=menu, weather=get_weather())
+
+
 kospi_dict, kosdaq_dict, nyse_dict, nasdaq_dict = {}, {}, {}, {}
 
 
@@ -81,8 +169,9 @@ def before_app_first_request():
 
 @rgrs_bp.route('/stock', methods=['GET', 'POST'])
 def stock():
-    menu = {'ho': 0, 'da': 1, 'ml': 0, 'se': 0,
-            'co': 0, 'cg': 0, 'cr': 0, 'st': 1, 'wc': 0}
+    menu = {'ho': 0, 'da': 0, 'ml': 10,
+            'se': 0, 'co': 0, 'cg': 0, 'cr': 0, 'wc': 0,
+            'cf': 0, 'ac': 0, 're': 1, 'cu': 0}
 
     if request.method == 'GET':
         return render_template('regression/stock.html', menu=menu, weather=get_weather(),
