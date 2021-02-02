@@ -6,9 +6,9 @@ Ch5_커피지수/result/
 
 labeledTrainData.tsv
 
-news20_countlr.pkl
-news20_tfidflr.pkl
-news20_tfidfsvc.pkl
+news20_count_lr.pkl
+news20_tfidf_lr.pkl
+news20_tfidf_svc.pkl
 
 
 imdb_count_sv.pkl

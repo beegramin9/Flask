@@ -6,11 +6,13 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.datasets import load_digits
 import sklearn.datasets as sd
 
+import re
 import os
 import joblib
 import pandas as pd
 import matplotlib.pyplot as plt
 from my_util.weather import get_weather
+from konlpy.tag import Okt
 
 aclsf_bp = Blueprint('aclsf_bp', __name__)
 
@@ -76,12 +78,41 @@ def digits():
                                result=result_dict, weather=get_weather())
 
 
-""" @aclsf_bp.before_app_first_request
+@aclsf_bp.before_app_first_request
 def before_app_first_request():
-    global news_count_lr, news_tfidf_lr, news_tfidf_sv
-    news_count_lr = joblib.load('../static/model/news20_count_lr.pkl')
-    news_tfidf_lr = joblib.load('../static/model/news20_tfidf_lr.pkl')
-    news_tfidf_sv = joblib.load('../static/model/news20_tfidf_sv.pkl') """
+    global news_count_lr, news_tfidf_lr, news_tfidf_sv, imdb_count_lr, imdb_tfidf_lr, \
+        hangul_count_lr, hangul_count_nb, hangul_tfidf_lr, hangul_tfidf_nb
+    news_count_lr = joblib.load('static/model/news20_count_lr.pkl')
+    news_tfidf_lr = joblib.load('static/model/news20_tfidf_lr.pkl')
+    news_tfidf_sv = joblib.load('static/model/news20_tfidf_svc.pkl')
+    imdb_count_lr = joblib.load('static/model/imdb_count_lr.pkl')
+    imdb_tfidf_lr = joblib.load('static/model/imdb_tfidf_lr.pkl')
+    hangul_count_lr = joblib.load('static/model/hangul_count_lr.pkl')
+    hangul_count_nb = joblib.load('static/model/hangul_count_nb.pkl')
+    hangul_tfidf_lr = joblib.load('static/model/hangul_tfidf_lr.pkl')
+    hangul_tfidf_nb = joblib.load('static/model/hangul_tfidf_nb.pkl')
+
+
+@aclsf_bp.route('/imdb', methods=['GET', 'POST'])
+def imdb():
+    if request.method == 'GET':
+        return render_template('advanced/imdb.html', menu=menu, weather=get_weather())
+    else:
+        test_data = []
+        label = '직접 확인'
+        if request.form['option'] == 'index':
+            index = int(request.form['index'] or '0')
+            df_test = pd.read_csv('static/data/advanced/IMDB_test.csv')
+            test_data.append(df_test.iloc[index, 0])
+            label = '긍정' if df_test.sentiment[index] else '부정'
+        else:
+            test_data.append(request.form['review'])
+
+        pred_cl = '긍정' if imdb_count_lr.predict(test_data)[0] else '부정'
+        pred_tl = '긍정' if imdb_tfidf_lr.predict(test_data)[0] else '부정'
+        result_dict = {'label': label, 'pred_cl': pred_cl, 'pred_tl': pred_tl}
+        return render_template('advanced/imdb_res.html', menu=menu, review=test_data[0],
+                               res=result_dict, weather=get_weather())
 
 
 @aclsf_bp.route('/news', methods=['GET', 'POST'])
@@ -96,7 +127,7 @@ def news():
         return render_template('advanced/news.html', menu=menu, weather=get_weather())
     else:
         index = int(request.form['index'])
-        df = pd.read_csv('static/advanced/news/test.csv')
+        df = pd.read_csv('static/data/advanced/new20_test.csv')
         label = f'{df.target[index]} ({target_names[df.target[index]]})'
         test_data = []
         test_data.append(df.data[index])
@@ -110,4 +141,43 @@ def news():
                        'pred_t_sv': f'{pred_t_sv[0]} ({target_names[pred_t_sv[0]]})'}
 
         return render_template('advanced/news_res.html', menu=menu, news=df.data[index],
+                               res=result_dict, weather=get_weather())
+
+
+@aclsf_bp.route('/naver', methods=['GET', 'POST'])
+def naver():
+    if request.method == 'GET':
+        return render_template('advanced/naver.html', menu=menu, weather=get_weather())
+    else:
+        if request.form['option'] == 'index':
+            index = int(request.form['index'] or '0')
+            df_test = pd.read_csv(
+                'static/data/advanced/movie_test.tsv', sep='\t')
+            org_review = df_test.document[index]
+            label = '긍정' if df_test.label[index] else '부정'
+        else:
+            org_review = request.form['review']
+            label = '직접 확인'
+
+        test_data = []
+        review = re.sub("[^ㄱ-ㅎㅏ-ㅣ가-힣 ]", "", org_review)
+        okt = Okt()
+        stopwords = ['의', '가', '이', '은', '들', '는', '좀', '잘', '걍',
+                     '과', '도', '를', '으로', '자', '에', '와', '한', '하다', '을']
+        morphs = okt.morphs(review, stem=True)  # 토큰화
+        temp_X = ' '.join(
+            [word for word in morphs if not word in stopwords])  # 불용어 제거
+        test_data.append(temp_X)
+
+        ''' naver_count_lr = joblib.load('static/model/naver_count_lr.pkl')
+        naver_count_nb = joblib.load('static/model/naver_count_nb.pkl')
+        naver_tfidf_lr = joblib.load('static/model/naver_tfidf_lr.pkl')
+        naver_tfidf_nb = joblib.load('static/model/naver_tfidf_nb.pkl') '''
+        pred_cl = '긍정' if hangul_count_lr.predict(test_data)[0] else '부정'
+        pred_cn = '긍정' if hangul_count_nb.predict(test_data)[0] else '부정'
+        pred_tl = '긍정' if hangul_tfidf_lr.predict(test_data)[0] else '부정'
+        pred_tn = '긍정' if hangul_tfidf_nb.predict(test_data)[0] else '부정'
+        result_dict = {'label': label, 'pred_cl': pred_cl, 'pred_cn': pred_cn,
+                       'pred_tl': pred_tl, 'pred_tn': pred_tn}
+        return render_template('advanced/naver_res.html', menu=menu, review=org_review,
                                res=result_dict, weather=get_weather())
