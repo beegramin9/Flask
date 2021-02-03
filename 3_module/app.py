@@ -10,6 +10,7 @@ from bp6_classification.clsf import clsf_bp
 from bp7_advanced.aclsf import aclsf_bp
 from bp8_regression.rgrs import rgrs_bp
 from bp9_clustering.clus import clus_bp
+from bp10_translation.trans import lang_bp
 
 from datetime import datetime, timedelta
 import os
@@ -41,6 +42,7 @@ app.register_blueprint(clsf_bp, url_prefix='/classification')
 app.register_blueprint(aclsf_bp, url_prefix='/advanced')
 app.register_blueprint(clus_bp, url_prefix='/cluster')
 app.register_blueprint(rgrs_bp, url_prefix='/regression')
+app.register_blueprint(lang_bp, url_prefix='/language')
 
 """ with open('./logging.json', 'r') as file:
     config = json.load(file)

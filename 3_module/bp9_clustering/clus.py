@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, session, g
+from flask import Blueprint, render_template, request, session
 from flask import current_app
 from werkzeug.utils import secure_filename
 from sklearn.preprocessing import StandardScaler
